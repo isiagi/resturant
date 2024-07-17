@@ -1,20 +1,40 @@
-import React from "react";
-import { Button, Image, Text, View } from "tamagui";
+import React, { useEffect, useState } from "react";
+import { Button, Image, ScrollView, Text, View } from "tamagui";
 import Constants from "expo-constants";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import instance from "@/api/base";
 
 type Props = {};
 
 const Page = (props: Props) => {
+  const [introData, setIntroData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const { id } = useLocalSearchParams();
+
+  useEffect(() => {
+    const fetchC = async () => {
+      try {
+        setLoading(true);
+        const data = await instance.get(`lookup.php?i=${id}`);
+        setIntroData(data.data.meals[0]);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchC();
+  }, []);
+
   return (
-    <View style={{ paddingTop: Constants.statusBarHeight }}>
-      <View>
-        <View position="relative">
+    <View flex={1} style={{ paddingTop: Constants.statusBarHeight }}>
+      <View flex={1}>
+        <View position="relative" marginBottom="$5">
           <Image
             source={{
-              uri: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YnJlYWtmYXN0fGVufDB8fDB8fHww",
+              uri: introData.strMealThumb,
               height: 300,
             }}
             backgroundSize={"cover"}
@@ -33,67 +53,63 @@ const Page = (props: Props) => {
             size={30}
           />
         </View>
-        <View paddingHorizontal="$3">
-          <View
-            flexDirection="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <View>
+        <ScrollView flex={1}>
+          <View paddingHorizontal="$3" paddingBottom="$7">
+            <View
+              flexDirection="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <View>
+                <Text color={"#000"} fontSize={"$7"}>
+                  {introData.strMeal}
+                </Text>
+                <Text color={"#000"} fontSize={"$5"}>
+                  (10pc)
+                </Text>
+              </View>
+              <View backgroundColor={"#000"} padding="$2" borderRadius={50}>
+                <Text color={"#fff"} fontSize={"$5"}>
+                  Ugx 20,000
+                </Text>
+              </View>
+            </View>
+            <View flexDirection="row" gap="$7" paddingVertical="$5">
+              <Pressable>
+                <Text
+                  backgroundColor={"#000"}
+                  color={"#fff"}
+                  fontSize={"$7"}
+                  paddingHorizontal="$3"
+                >
+                  +
+                </Text>
+              </Pressable>
               <Text color={"#000"} fontSize={"$7"}>
-                Special BreakFast
+                1
               </Text>
+              <Pressable>
+                <Text
+                  backgroundColor={"#000"}
+                  color={"#fff"}
+                  fontSize={"$7"}
+                  paddingHorizontal="$3"
+                >
+                  -
+                </Text>
+              </Pressable>
+            </View>
+            <View>
               <Text color={"#000"} fontSize={"$5"}>
-                (10pc)
+                Description
               </Text>
+              <Text color={"#000"}>{introData.strInstructions}</Text>
             </View>
-            <View backgroundColor={"#000"} padding="$2" borderRadius={50}>
-              <Text color={"#fff"} fontSize={"$5"}>
-                Ugx 20,000
-              </Text>
+            <View>
+              <Button> Add for Ugx 20,000</Button>
             </View>
           </View>
-          <View flexDirection="row" gap="$7" paddingVertical="$5">
-            <Pressable>
-              <Text
-                backgroundColor={"#000"}
-                color={"#fff"}
-                fontSize={"$7"}
-                paddingHorizontal="$3"
-              >
-                +
-              </Text>
-            </Pressable>
-            <Text color={"#000"} fontSize={"$7"}>
-              1
-            </Text>
-            <Pressable>
-              <Text
-                backgroundColor={"#000"}
-                color={"#fff"}
-                fontSize={"$7"}
-                paddingHorizontal="$3"
-              >
-                -
-              </Text>
-            </Pressable>
-          </View>
-          <View>
-            <Text color={"#000"} fontSize={"$5"}>
-              Description
-            </Text>
-            <Text color={"#000"}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </Text>
-          </View>
-          <View>
-            <Button> Add for Ugx 20,000</Button>
-          </View>
-        </View>
+        </ScrollView>
       </View>
     </View>
   );

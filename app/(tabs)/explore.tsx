@@ -1,6 +1,6 @@
 import { Image, Text, View } from "tamagui";
 import Constants from "expo-constants";
-import { FlatList, Pressable } from "react-native";
+import { ActivityIndicator, FlatList, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Button } from "tamagui";
@@ -9,11 +9,30 @@ import {
   horizontalScale as hs,
   moderateScale as ms,
 } from "@/components/ui/Metric";
+import { useEffect, useState } from "react";
+import instance from "@/api/base";
 
 export default function TabTwoScreen() {
+  const [introData, setIntroData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchC = async () => {
+      try {
+        setLoading(true);
+        const data = await instance.get(`filter.php?c=Chicken`);
+        setIntroData(data.data.meals);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchC();
+  }, []);
   return (
     <View paddingTop={Constants.statusBarHeight}>
-      <View paddingHorizontal="$5">
+      <View paddingHorizontal="$3">
         <Text
           color={"#000"}
           fontSize={"$7"}
@@ -23,45 +42,56 @@ export default function TabTwoScreen() {
           Your Favourites Meals
         </Text>
         <View>
-          <FlatList
-            data={[1, 2, 3, 4, 5, 6, 7]}
-            renderItem={() => (
-              <View style={{ flex: 1, marginTop: vs(25) }}>
-                <View style={{ position: "relative" }}>
-                  <Image
-                    source={{
-                      uri: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YnJlYWtmYXN0fGVufDB8fDB8fHww",
-                    }}
-                    height={200}
-                    backgroundSize={"cover"}
-                  />
+          {loading ? (
+            <ActivityIndicator />
+          ) : (
+            <FlatList
+              data={introData}
+              renderItem={({ item }) => (
+                <View style={{ flex: 1, marginTop: vs(25) }}>
+                  <View style={{ position: "relative" }}>
+                    <Image
+                      source={{
+                        uri: item.strMealThumb,
+                      }}
+                      height={250}
+                      backgroundSize={"cover"}
+                    />
 
-                  <Ionicons
-                    style={{ position: "absolute", top: 5, right: 5 }}
-                    name="heart"
-                    size={25}
-                  />
-                </View>
-                <Pressable onPress={() => router.push("/detail")}>
-                  <Text color="#000" paddingTop="$1.5">
-                    Special BreakFast
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      paddingVertical: vs(5),
-                    }}
-                  >
-                    <Text color="#000">Price</Text>
-                    <Text color="#000">Ugx 20000</Text>
+                    <Ionicons
+                      style={{ position: "absolute", top: 5, right: 5 }}
+                      name="heart"
+                      size={25}
+                    />
                   </View>
-                </Pressable>
-                <Button>Add To Cart</Button>
-              </View>
-            )}
-            keyExtractor={(item) => item}
-          />
+                  <Pressable
+                    onPress={() =>
+                      router.push({
+                        pathname: "/detail",
+                        params: { id: item.idMeal },
+                      })
+                    }
+                  >
+                    <Text color="#000" paddingTop="$1.5">
+                      {item.strMeal}
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        paddingVertical: vs(5),
+                      }}
+                    >
+                      <Text color="#000">Price</Text>
+                      <Text color="#000">Ugx 20000</Text>
+                    </View>
+                  </Pressable>
+                  <Button>Add To Cart</Button>
+                </View>
+              )}
+              keyExtractor={(item) => item.idMeal}
+            />
+          )}
         </View>
       </View>
     </View>

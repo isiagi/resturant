@@ -23,7 +23,7 @@ const Page = (props: Props) => {
             >
               {({ open }: { open: boolean }) => (
                 <>
-                  <Paragraph>1. Take a cold shower</Paragraph>
+                  <Paragraph>1. Today Offers</Paragraph>
                   <Square animation="quick" rotate={open ? "180deg" : "0deg"}>
                     <ChevronDown size="$1" />
                   </Square>
@@ -48,7 +48,7 @@ const Page = (props: Props) => {
             >
               {({ open }: { open: boolean }) => (
                 <>
-                  <Paragraph>2. Eat 4 eggs</Paragraph>
+                  <Paragraph>2. You Login with Another Device</Paragraph>
                   <Square animation="quick" rotate={open ? "180deg" : "0deg"}>
                     <ChevronDown size="$1" />
                   </Square>
